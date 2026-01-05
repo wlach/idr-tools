@@ -1,0 +1,18 @@
+[package]
+name = "idr-tools"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "idr"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1.0.100"
+clap = { version = "4.5.54", features = ["derive"] }
+gix = "0.77.0"
+gix-config = "0.50.0"
+jiff = "0.2.17"
+minijinja = "2.14.0"
+regex = "1.11.1"
+slug = "0.1.6"
