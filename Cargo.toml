@@ -3,6 +3,12 @@ name = "idr-tools"
 version = "0.1.0"
 edition = "2024"
 
+[profile.release]
+strip = true
+opt-level = "z"
+lto = true
+codegen-units = 1
+
 [[bin]]
 name = "idr"
 path = "src/main.rs"

@@ -1,6 +1,7 @@
 use std::path::{Path, PathBuf};
 
 use jiff::Timestamp;
+use minijinja::{Environment, context};
 use regex::Regex;
 use slug::slugify;
 
@@ -39,6 +40,27 @@ pub fn strip_html_comments(text: &str) -> String {
     result.trim().to_string()
 }
 
+/// Render IDR template with given parameters
+pub fn render_idr_template(
+    title: &str,
+    owner: &str,
+    timestamp: Timestamp,
+) -> anyhow::Result<String> {
+    let mut env = Environment::new();
+    env.add_template("idr", include_str!("./default_template.md.jinja"))?;
+    let tmpl = env.get_template("idr")?;
+
+    let now_yyyymmdd = timestamp.strftime("%Y-%m-%d").to_string();
+
+    let rendered = tmpl.render(context!(
+        date => now_yyyymmdd,
+        title => title,
+        owner => owner,
+    ))?;
+
+    Ok(rendered)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -47,14 +69,14 @@ mod tests {
     fn test_get_idr_filename() {
         // Create a timestamp: 2026-12-25 15:45:00 UTC
         let timestamp = "2026-12-25T15:45:00Z".parse::<Timestamp>().unwrap();
-        let filename = get_idr_filename("My Test IDR".to_string(), timestamp);
+        let filename = get_idr_filename("My Test IDR", timestamp);
         assert_eq!(filename, "202612251545-my-test-idr.md");
     }
 
     #[test]
     fn test_get_idr_filename_special_chars() {
         let timestamp = "2026-12-25T15:45:00Z".parse::<Timestamp>().unwrap();
-        let filename = get_idr_filename("Hello & World!".to_string(), timestamp);
+        let filename = get_idr_filename("Hello & World!", timestamp);
         assert_eq!(filename, "202612251545-hello-world.md");
     }
 
@@ -115,5 +137,17 @@ End"#;
         let input = "Just plain text";
         let output = strip_html_comments(input);
         assert_eq!(output, "Just plain text");
+    }
+
+    #[test]
+    fn test_render_idr_template() {
+        let timestamp = "2026-01-12T12:00:00Z".parse::<Timestamp>().unwrap();
+        let result = render_idr_template("Test Title", "Test User <test@example.com>", timestamp);
+
+        assert!(result.is_ok());
+        let content = result.unwrap();
+        assert!(content.contains("# 2026-01-12: Test Title"));
+        assert!(content.contains("Owner: Test User <test@example.com>"));
+        assert!(content.contains("## Overview"));
     }
 }
