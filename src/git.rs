@@ -48,136 +48,132 @@ pub fn get_identity() -> Option<String> {
 mod tests {
     use super::*;
     use std::env;
+    use serial_test::serial;
 
-    #[test]
-    fn test_env_nonempty_returns_some_for_valid_value() {
-        unsafe {
-            env::set_var("TEST_VAR", "test_value");
+    struct EnvRestore {
+        key: String,
+        prev: Option<String>,
+    }
+
+    impl Drop for EnvRestore {
+        fn drop(&mut self) {
+            match &self.prev {
+                Some(value) => unsafe {
+                    env::set_var(&self.key, value);
+                },
+                None => unsafe {
+                    env::remove_var(&self.key);
+                },
+            }
         }
-        assert_eq!(env_nonempty("TEST_VAR"), Some("test_value".to_string()));
+    }
+
+    fn set_env_guard(key: &str, value: &str) -> EnvRestore {
+        let prev = env::var(key).ok();
         unsafe {
-            env::remove_var("TEST_VAR");
+            env::set_var(key, value);
+        }
+        EnvRestore {
+            key: key.to_string(),
+            prev,
+        }
+    }
+
+    fn remove_env_guard(key: &str) -> EnvRestore {
+        let prev = env::var(key).ok();
+        unsafe {
+            env::remove_var(key);
+        }
+        EnvRestore {
+            key: key.to_string(),
+            prev,
         }
     }
 
     #[test]
+    #[serial]
+    fn test_env_nonempty_returns_some_for_valid_value() {
+        let _guard = set_env_guard("TEST_VAR", "test_value");
+        assert_eq!(env_nonempty("TEST_VAR"), Some("test_value".to_string()));
+    }
+
+    #[test]
+    #[serial]
     fn test_env_nonempty_returns_none_for_missing_var() {
-        unsafe {
-            env::remove_var("NONEXISTENT_VAR");
-        }
+        let _guard = remove_env_guard("NONEXISTENT_VAR");
         assert_eq!(env_nonempty("NONEXISTENT_VAR"), None);
     }
 
     #[test]
+    #[serial]
     fn test_env_nonempty_trims_whitespace() {
-        unsafe {
-            env::set_var("TEST_VAR_SPACES", "  value with spaces  ");
-        }
+        let _guard = set_env_guard("TEST_VAR_SPACES", "  value with spaces  ");
         assert_eq!(
             env_nonempty("TEST_VAR_SPACES"),
             Some("value with spaces".to_string())
         );
-        unsafe {
-            env::remove_var("TEST_VAR_SPACES");
-        }
     }
 
     #[test]
+    #[serial]
     fn test_env_nonempty_filters_empty_string() {
-        unsafe {
-            env::set_var("TEST_VAR_EMPTY", "");
-        }
+        let _guard = set_env_guard("TEST_VAR_EMPTY", "");
         assert_eq!(env_nonempty("TEST_VAR_EMPTY"), None);
-        unsafe {
-            env::remove_var("TEST_VAR_EMPTY");
-        }
     }
 
     #[test]
+    #[serial]
     fn test_env_nonempty_filters_whitespace_only() {
-        unsafe {
-            env::set_var("TEST_VAR_WHITESPACE", "   ");
-        }
+        let _guard = set_env_guard("TEST_VAR_WHITESPACE", "   ");
         assert_eq!(env_nonempty("TEST_VAR_WHITESPACE"), None);
-        unsafe {
-            env::remove_var("TEST_VAR_WHITESPACE");
-        }
     }
 
     #[test]
+    #[serial]
     fn test_get_identity_from_env_vars() {
         // Set environment variables
-        unsafe {
-            env::set_var("GIT_AUTHOR_NAME", "Test User");
-            env::set_var("GIT_AUTHOR_EMAIL", "test@example.com");
-        }
+        let _guard_name = set_env_guard("GIT_AUTHOR_NAME", "Test User");
+        let _guard_email = set_env_guard("GIT_AUTHOR_EMAIL", "test@example.com");
 
         let result = get_identity();
         assert_eq!(result, Some("Test User <test@example.com>".to_string()));
-
-        // Clean up
-        unsafe {
-            env::remove_var("GIT_AUTHOR_NAME");
-            env::remove_var("GIT_AUTHOR_EMAIL");
-        }
     }
 
     #[test]
+    #[serial]
     fn test_get_identity_prefers_author_over_committer() {
-        unsafe {
-            env::set_var("GIT_AUTHOR_NAME", "Author Name");
-            env::set_var("GIT_COMMITTER_NAME", "Committer Name");
-            env::set_var("GIT_AUTHOR_EMAIL", "author@example.com");
-            env::set_var("GIT_COMMITTER_EMAIL", "committer@example.com");
-        }
+        let _guard_author_name = set_env_guard("GIT_AUTHOR_NAME", "Author Name");
+        let _guard_committer_name = set_env_guard("GIT_COMMITTER_NAME", "Committer Name");
+        let _guard_author_email = set_env_guard("GIT_AUTHOR_EMAIL", "author@example.com");
+        let _guard_committer_email = set_env_guard("GIT_COMMITTER_EMAIL", "committer@example.com");
 
         let result = get_identity();
         assert_eq!(result, Some("Author Name <author@example.com>".to_string()));
-
-        // Clean up
-        unsafe {
-            env::remove_var("GIT_AUTHOR_NAME");
-            env::remove_var("GIT_COMMITTER_NAME");
-            env::remove_var("GIT_AUTHOR_EMAIL");
-            env::remove_var("GIT_COMMITTER_EMAIL");
-        }
     }
 
     #[test]
+    #[serial]
     fn test_get_identity_falls_back_to_committer() {
-        unsafe {
-            env::set_var("GIT_COMMITTER_NAME", "Committer Name");
-            env::set_var("GIT_COMMITTER_EMAIL", "committer@example.com");
-        }
+        let _guard_name = set_env_guard("GIT_COMMITTER_NAME", "Committer Name");
+        let _guard_email = set_env_guard("GIT_COMMITTER_EMAIL", "committer@example.com");
 
         let result = get_identity();
         assert_eq!(
             result,
             Some("Committer Name <committer@example.com>".to_string())
         );
-
-        // Clean up
-        unsafe {
-            env::remove_var("GIT_COMMITTER_NAME");
-            env::remove_var("GIT_COMMITTER_EMAIL");
-        }
     }
 
     #[test]
+    #[serial]
     fn test_get_identity_returns_none_when_incomplete() {
         // Only name, no email - should continue to try other sources
-        unsafe {
-            env::set_var("GIT_AUTHOR_NAME", "Test User");
-            env::remove_var("GIT_AUTHOR_EMAIL");
-            env::remove_var("GIT_COMMITTER_EMAIL");
-        }
+        let _guard_name = set_env_guard("GIT_AUTHOR_NAME", "Test User");
+        let _guard_author_email = remove_env_guard("GIT_AUTHOR_EMAIL");
+        let _guard_committer_email = remove_env_guard("GIT_COMMITTER_EMAIL");
 
         // Can't assert None here because it might find git config
         // Just verify it doesn't panic
         let _result = get_identity();
-
-        unsafe {
-            env::remove_var("GIT_AUTHOR_NAME");
-        }
     }
 }
