@@ -41,8 +41,10 @@ As a basic packaging check, CI will install the built wheel and run `idr --help`
 - Use a Rust toolchain step and run `cargo test` (and `cargo build --release` if needed for binary artifacts).
 - Use `actions/setup-python` (pin a supported Python, e.g. 3.11) and `maturin-action` to build wheels per OS (matching the existing `pyproject.toml`).
 - Install the built wheel, run `idr --help`, and generate an IDR in a temp directory to validate the packaged binary works end-to-end.
+- Serialize env-var tests (e.g., `serial_test`) to avoid CI flakiness from parallel test execution.
 
 Status:
 - ✅ Added `.github/workflows/ci.yml` with OS matrix, Rust tests, and maturin wheel builds.
 - ✅ Pinned CI to Python 3.11 for binary-only packaging.
 - ✅ Added a smoke test that installs the wheel and verifies the generated IDR has a title and `Owner:` line.
+- ✅ Serialized env-var tests using `serial_test` to avoid Windows CI flakiness.

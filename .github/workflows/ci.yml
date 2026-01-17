@@ -2,6 +2,8 @@ name: CI
 
 on:
   push:
+    branches:
+      - main
   pull_request:
 
 jobs:
@@ -42,7 +44,7 @@ jobs:
           python -m pip install dist/*.whl
           idr --help
           tmpdir="$(mktemp -d)"
-          (cd "$tmpdir" && idr new "CI smoke test")
+          (cd "$tmpdir" && mkdir -p idrs && idr new "CI smoke test")
           idr_file="$(ls "$tmpdir"/idrs/*-ci-smoke-test.md)"
           test -f "$idr_file"
           grep -q "^# .*CI smoke test" "$idr_file"
