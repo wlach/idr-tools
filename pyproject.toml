@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "idr-tools"
-version = "0.1.3"
+version = "0.2.0"
 description = "Create Implementation Decision Records"
 authors = [{ name = "Will Lachance", email = "wlach@protonmail.com" }]
 readme = "README.md"
