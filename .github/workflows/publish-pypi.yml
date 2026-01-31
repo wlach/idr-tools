@@ -11,8 +11,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    name: Build distribution (${{ matrix.os }})
+  build-wheels:
+    name: Build wheels (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -38,12 +38,21 @@ jobs:
           command: build
           args: --release --out dist
 
-      - name: Build sdist (Linux only)
-        if: matrix.os == 'ubuntu-latest'
-        run: cargo clean
+      - name: Store the distribution packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-package-distributions-${{ matrix.os }}
+          path: dist/
 
-      - name: Build sdist with maturin (Linux only)
-        if: matrix.os == 'ubuntu-latest'
+  build-sdist:
+    name: Build source distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Build sdist
         uses: PyO3/maturin-action@v1
         with:
           command: sdist
@@ -52,7 +61,7 @@ jobs:
       - name: Store the distribution packages
         uses: actions/upload-artifact@v4
         with:
-          name: python-package-distributions-${{ matrix.os }}
+          name: python-package-distributions-sdist
           path: dist/
 
   publish-to-testpypi:
@@ -62,7 +71,8 @@ jobs:
       github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.head_branch == 'main'
     needs:
-      - build
+      - build-wheels
+      - build-sdist
     runs-on: ubuntu-latest
     environment:
       name: release-test-pypi
@@ -88,7 +98,8 @@ jobs:
     name: Publish to PyPI
     if: github.event_name == 'release' && github.event.action == 'published'
     needs:
-      - build
+      - build-wheels
+      - build-sdist
     runs-on: ubuntu-latest
     environment:
       name: release-pypi
