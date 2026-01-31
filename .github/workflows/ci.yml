@@ -5,6 +5,9 @@ on:
     branches:
       - main
   pull_request:
+  release:
+    types: [published]
+  workflow_dispatch:
 
 jobs:
   build-test:
@@ -17,6 +20,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
@@ -43,11 +48,18 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Build wheels with maturin
+      - name: Build wheels (and sdist on Linux)
         uses: PyO3/maturin-action@v1
         with:
           command: build
           args: --release --out dist
+
+      - name: Build sdist (Linux only)
+        if: matrix.os == 'ubuntu-latest'
+        uses: PyO3/maturin-action@v1
+        with:
+          command: sdist
+          args: --out dist
 
       - name: Install wheel and smoke test
         shell: bash
@@ -60,3 +72,9 @@ jobs:
           test -f "$idr_file"
           grep -q "^# .*CI smoke test" "$idr_file"
           grep -q "^Owner: " "$idr_file"
+
+      - name: Store the distribution packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-package-distributions-${{ matrix.os }}
+          path: dist/
