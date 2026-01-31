@@ -66,6 +66,8 @@ jobs:
           pattern: python-package-distributions-*
           path: dist/
           merge-multiple: true
+      - name: List downloaded files
+        run: ls -R dist/
       - name: Publish distribution to TestPyPI
         continue-on-error: true
         uses: pypa/gh-action-pypi-publish@release/v1
@@ -90,5 +92,7 @@ jobs:
           pattern: python-package-distributions-*
           path: dist/
           merge-multiple: true
+      - name: List downloaded files
+        run: ls -R dist/
       - name: Publish distribution to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
