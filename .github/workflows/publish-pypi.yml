@@ -40,9 +40,14 @@ jobs:
 
       - name: Build sdist (Linux only)
         if: matrix.os == 'ubuntu-latest'
-        run: |
-          cargo clean
-          uv run maturin sdist --out dist
+        run: cargo clean
+
+      - name: Build sdist with maturin (Linux only)
+        if: matrix.os == 'ubuntu-latest'
+        uses: PyO3/maturin-action@v1
+        with:
+          command: sdist
+          args: --out dist
 
       - name: Store the distribution packages
         uses: actions/upload-artifact@v4
