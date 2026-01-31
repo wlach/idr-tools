@@ -1,7 +1,10 @@
 name: Publish Python package
 
 on:
-  push:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
     branches: [main]
   release:
     types: [published]
@@ -37,10 +40,9 @@ jobs:
 
       - name: Build sdist (Linux only)
         if: matrix.os == 'ubuntu-latest'
-        uses: PyO3/maturin-action@v1
-        with:
-          command: sdist
-          args: --out dist
+        run: |
+          cargo clean
+          uv run maturin sdist --out dist
 
       - name: Store the distribution packages
         uses: actions/upload-artifact@v4
@@ -50,7 +52,10 @@ jobs:
 
   publish-to-testpypi:
     name: Publish to TestPyPI
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: |
+      github.event_name == 'workflow_run' && 
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
     needs:
       - build
     runs-on: ubuntu-latest
