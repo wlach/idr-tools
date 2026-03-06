@@ -53,6 +53,7 @@ jobs:
         with:
           command: build
           args: --release --out dist
+          manylinux: auto
 
       - name: Build sdist (Linux only)
         if: matrix.os == 'ubuntu-latest'
