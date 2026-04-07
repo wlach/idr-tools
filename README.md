@@ -89,6 +89,20 @@ The IDR template includes sections for:
 
 The comments are useful reminders for both humans and LLMs, but you can opt to not include them by passing `--no-comments` or setting the environment variable `IDR_NO_COMMENTS=1`.
 
+## Agent skill
+
+This repository includes an optional `idr` skill for agent workflows. It keeps IDRs human-led: the agent can create the scaffold, critique the IDR, implement from the approved IDR, and update the implementation notes after the work is done.
+
+To install it locally, symlink `skills/idr` into your agent's skills directory:
+
+```bash
+# Codex
+ln -s /path/to/idr-tools/skills/idr ~/.agents/skills/idr
+
+# Claude Code
+ln -s /path/to/idr-tools/skills/idr ~/.claude/skills/idr
+```
+
 ## Examples
 
 This feature was itself implemented using an IDR—see [idrs/202601031709-init.md](idrs/202601031709-init.md) for more about the IDR format and philosophy.
