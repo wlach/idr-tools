@@ -7,7 +7,9 @@ description: Use when the user explicitly asks to create, review, critique, impl
 
 ## Core Principle
 
-The human owns the design. The agent helps create the scaffold, critiques the IDR, implements from the approved IDR, verifies the work, and records what actually happened.
+The human owns the design. The LLM helps create the scaffold, critiques the IDR, implements from the approved IDR, verifies the work, and records what actually happened.
+
+An IDR remains a draft through implementation and review. Questions, tentative explanations, and incomplete sections are welcome while understanding develops. Approval of the proposed solution allows implementation to begin; it does not finalize the record.
 
 ## Stage 1: Create Scaffold
 
@@ -19,7 +21,8 @@ When the user asks to start an IDR:
    <idr command> new "<title>"
    ```
 3. Report the created path.
-4. Stop and wait for the user to fill in the main sections.
+4. Ask whether the user prefers to fill in the design sections independently or develop them interactively, unless they have already specified a preference.
+5. If they prefer an interactive session, help develop the sections below through dialogue. Start with what is known; do not force premature completeness.
 
 The user normally owns:
 
@@ -39,7 +42,7 @@ When the user asks for help developing or reviewing an IDR:
 3. If the user requested a specific critique mode, use it.
 4. If the user did not request a specific critique mode, perform a concise general review and ask whether they want to go deeper on a particular dimension.
 5. Align with the user on the problem statement, context, goals, non-goals, and proposed solution before helping fill in other sections.
-6. After alignment, help fill in requested sections such as Other reading or Implementation hints when asked.
+6. After alignment, help fill in requested sections such as Other reading or implementation hints in Working notes when asked.
 7. Do not rewrite human-owned sections unless asked.
 
 Useful critique modes include:
@@ -59,23 +62,36 @@ When the user asks to implement from an approved IDR:
 
 1. Re-read the IDR.
 2. Treat it as the source of truth.
-3. Flag contradictions or unresolved ambiguity before coding.
-4. If implementation reveals that the approved IDR is wrong, stale, or incomplete, stop and report the mismatch rather than silently implementing a different design.
+3. Flag contradictions or ambiguity that prevents implementation within the agreed intent. Incompleteness alone need not stop implementation.
+4. If implementation reveals that the approved IDR is wrong or stale, stop and report the mismatch rather than silently implementing a different design.
 5. Implement within the stated scope.
 6. Add or update tests.
 7. Run relevant verification.
 8. Write or update docs when the change affects documented behavior.
 
+Use `## Working notes (ephemeral)` throughout implementation and review to capture questions, experiments, discoveries, and implementation results. Humans may also write implementation hints there. Keep these notes available while review can still reshape the work and for handoff between sessions.
+
 ## Stage 4: Update And Verify IDR
 
 Before declaring the task done:
 
-1. Compare the final diff to the IDR.
-2. Update `## Implementation (ephemeral)` with factual implementation notes.
-3. Flag stale human-authored design sections instead of silently rewriting them.
-4. Summarize what changed and what was verified.
+1. Check whether the implementation serves the stated intent, as well as whether the diff and IDR agree.
+2. A mismatch may require changing the implementation or revisiting the proposed solution. Identify changes to the solution; do not simply rewrite the IDR to justify whatever was built. Do not change the problem statement, goals, or non-goals without human consent.
+3. Propose updates informed by Working notes and review feedback. Preserve discoveries that explain why the chosen approach prevailed, including consequential changes in understanding.
 
-The `## Implementation (ephemeral)` section is the main section the agent should expect to update after doing the work. Humans may write implementation hints there, but in the agent-assisted workflow this section is primarily where the agent records what actually happened.
+Repeat verification and revision as human feedback changes the solution.
+
+## Stage 5: Finalization
+
+Finalize when the work is ready to merge, meaning human or LLM review has at least mostly finished. Completing implementation alone does not trigger finalization; this stage may happen in a later session.
+
+Finalize through manual edits:
+
+1. Move discoveries needed to explain the outcome or changed decisions from Working notes into the relevant durable sections. Retain the reasoning without recounting every experiment.
+2. Remove Working notes, guidance comments, and empty optional sections. The overview should explain the real-world need and approach taken; other sections are optional.
+3. Remove the `draft` field, rather than setting it to `false`. Preserve unrelated frontmatter; remove the block if it becomes empty.
+
+When the CLI supports `lint`, use `<idr command> lint <file>...` on the relevant IDRs to check for leftover draft material. Passing lint does not establish that the record communicates intent or that review is complete.
 
 ## Command Resolution
 
@@ -89,8 +105,8 @@ If none works, ask the user how to invoke `idr`. Do not install dependencies glo
 
 ## Context Handoff
 
-After IDR approval, ask whether the user wants to continue in the same session or start a new agent session manually.
+After IDR approval, ask whether the user wants to continue in the same session or start a new LLM session manually, unless they have already specified how to proceed.
 
-If the user wants a new session, first capture important implementation-relevant research in `## Implementation (ephemeral)`.
+If the user wants a new session, first capture important implementation-relevant research in `## Working notes (ephemeral)`.
 
 If the user continues in the same session, proceed from the approved IDR.

@@ -1,9 +1,36 @@
-<!--
-Commented sections (like this) are meant to be explanatory. Feel free to delete them.
+---
+draft: true
+---
 
-To create IDRs without these comments:
-- Use the --no-comments flag: idr new "Title" --no-comments
-- Or set the environment variable: export IDR_NO_COMMENTS=1
+<!--
+This document is a working draft while a change is being developed and reviewed, and a
+record of intent and decisions afterward. Start with what you know. Questions,
+tentative explanations, and incomplete sections are welcome. Revisit the
+document as implementation and review change your understanding of the problem or solution.
+
+Approval of the proposed solution allows implementation to begin; the IDR
+remains a draft until human or LLM review has at least mostly finished.
+
+By the time the work is ready to merge, a reader should be able to understand:
+
+* What motivated the change
+* What approach was taken
+* What might be done in the future
+
+Include technical detail where it helps explain a decision; the diff can
+supply routine implementation details.
+Aside from the overview, all sections are optional.
+
+Once review is at least mostly finished, finalize the record through manual edits.
+Preserve discoveries that explain why the chosen approach prevailed, including
+consequential changes in understanding, in the relevant sections. The finished
+record need not recount every experiment, but should retain the reasoning.
+Then remove working notes, comments, and empty optional sections.
+Remove the draft field rather than setting it to false. Preserve unrelated
+frontmatter; remove the block if it becomes empty.
+
+Commented blocks (like this) provide guidance when in draft stage.
+Keep them while working, remove before the final product is merged.
 -->
 
 # {{ date }}: {{ title }}
@@ -15,70 +42,117 @@ Owner: {{ owner }}
 ### Problem Statement
 
 <!--
+tl;dr: "So what?"
+
 * 3-5 lines
 * Statement of the goal
 * Help people decide if they want to invest in reading this on a skim
+
+It is ok to start with a vague or half-formed problem statement,
+but before the IDR is finalized it should describe an ACTUAL real-world need.
+Something not existing is not a problem. :)
+
+Good examples of problems:
+
+* It takes too long to ...
+* System X is less secure than it should be ...
+* We want to make it easier to ...
+
+Bad examples of problems:
+
+* We want to add support for X technology ...
+* We want to build XYZ ...
 -->
 
 ### Context (as needed)
 
+<!--
+Describe context in which problem revealed itself.
+Again, try to keep it short (ideally <200 words).
+-->
+
 ### Goals
 
 <!--
-* Describe major goals of this implementation
-* Does not need to be exhaustive, less is more
+Describe major goals of this implementation.
+Does not need to be exhaustive, less is more.
+Try not to talk about implementation details here: leave that for the solution.
 -->
 
 ### Non-Goals
 
 <!--
-* Describe non-goals of this implementation
-* Does not need to be exhaustive, less is more
+Describe non-goals of this implementation, things we are NOT trying to do.
+Does not need to be exhaustive, less is more.
+Try not to talk about implementation details here: leave that for the solution.
 -->
 
 ### Proposed Solution
 
 <!--
-Describe in relatively short form (ideally <200 words) the proposed solution
+Describe in short form (ideally <200 words) the proposed solution.
 -->
 
-## Detailed Design (as needed)
+## Detailed Design
 
 <!--
-Go into more detail on the design if needed. Totally optional. Note there
-is a section below for describing the exact shape of the implementation.
+Go into more detail on the design if needed.
+
+Do NOT restate the implementation (line numbers, files, etc.) here.
+While more detailed than the proposed solution's sketch, it is still meant
+as a relatively high-level architectural overview of the solution. If that
+can be stated in "Proposed Solution", simply delete this section.
+
+Examples of useful content:
+
+* Detailed descriptions of particular modules and how they fit into the solution
+* Mermaid diagrams of major architectural components or data flows
 -->
 
-## Cross cutting concerns (as needed)
+## Cross cutting concerns
 
 <!--
 Describe the design from other angles, as required: security, reliability, etc.
+
+You may have nothing to say here. If so, simply delete this section.
 -->
 
-## Alternatives considered (as needed)
+## Alternatives considered
 
 <!--
 Describe alternatives to this design that were considered. Doesn't need to
 be exhaustive, only add something here if you think someone is likely to ask
 about it.
+
+You may have nothing to say here. If so, simply delete this section.
 -->
 
-## Future plans (as needed)
+## Future plans
 
 <!--
-Things that may be added in the future
+Ways in which this solution may be extended, or future plans that may be added.
+
+You may have nothing to say here. If so, simply delete this section.
 -->
 
-## Other reading (as needed)
+## Other reading
 
 <!--
 Provide links to prior art
+
+You may have nothing to say here. If so, simply delete this section.
 -->
 
-## Implementation (ephemeral)
+## Working notes (ephemeral)
 
 <!--
 Details on the implementation of this design. Can include checklists,
 detailed descriptions of code changes, etc. Whatever is most helpful
-to the humans and/or computers responsible for implementation!
+to the humans and/or LLMs responsible for implementation!
+
+Use this section throughout implementation and review to capture questions,
+experiments, and discoveries as well as implementation details. Once human or
+LLM review has at least mostly finished, move anything
+needed to explain the outcome or a changed decision into the relevant sections
+above, then delete this section.
 -->

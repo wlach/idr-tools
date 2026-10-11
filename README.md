@@ -46,13 +46,15 @@ Use this template as a starting point:
 - ✅ **Commit it with your code**
 - 🚀 **Move on** after it lands
 
-IDRs are moments in time, a record of what was done. They are not intended to be permanent documentation of the system "as it is".
+IDRs are moments in time, a record of the thinking behind a solution to a problem and why it was chosen.
+They are not intended to be permanent documentation of a system "as it is".
 
 ## Why IDRs?
 
 This is an experiment to try and find a middle ground between proposals, documentation, and implementation.
 
-[Traditional design docs](https://www.industrialempathy.com/posts/design-docs-at-google/) are useful for larger decisions that require a great deal of discussion and alternatives. [ADRs](https://adr.github.io/) are great for documenting decisions but usually lack implementation detail. IDRs bridge the gap: detailed enough to guide implementation, ephemeral enough to not become stale documentation.
+[Traditional design docs](https://www.industrialempathy.com/posts/design-docs-at-google/) are useful for larger decisions that require a great deal of discussion and alternatives. [ADRs](https://adr.github.io/) are great for documenting decisions but lack detail.
+IDRs bridge the gap: detailed enough to guide implementation, ephemeral enough to not become stale documentation.
 
 In some ways an IDR is analogous to a very large commit message. However, it is generally easier to scan,
 parse, and search as a permanent historical record.
@@ -85,7 +87,7 @@ The IDR template includes sections for:
 - Goals and Non-Goals
 - Proposed Solution
 - Detailed Design
-- Implementation notes (ephemeral)
+- Working notes (ephemeral)
 
 The comments are useful reminders for both humans and LLMs, but you can opt to not include them by passing `--no-comments` or setting the environment variable `IDR_NO_COMMENTS=1`.
 
