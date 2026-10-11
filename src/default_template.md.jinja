@@ -3,10 +3,10 @@ draft: true
 ---
 
 <!--
-This document is a working draft while a change is being developed and reviewed, and a
-record of intent and decisions afterward. Start with what you know. Questions,
-tentative explanations, and incomplete sections are welcome. Revisit the
-document as implementation and review change your understanding of the problem or solution.
+This is a working draft during development and review, and a record of intent
+and decisions afterward. Start with what you know; questions, tentative
+explanations, and incomplete sections are welcome. Update it as your
+understanding changes.
 
 Approval of the proposed solution allows implementation to begin; the IDR
 remains a draft until human or LLM review has at least mostly finished.
@@ -27,15 +27,13 @@ Aside from the overview, all sections are optional.
 Once review is at least mostly finished, finalize through deliberate edits,
 either yourself or by asking an LLM to help. If review readiness is unclear,
 keep the draft and clarify before finalizing.
-Preserve discoveries that explain why the chosen approach prevailed, including
-consequential changes in understanding, in the relevant sections. The finished
-record need not recount every experiment, but should retain the reasoning.
+Preserve discoveries and changes in understanding that explain the decisions.
+Keep the reasoning; omit the experiment log.
 Then remove working notes, comments, and empty optional sections.
 Remove the draft field rather than setting it to false. Preserve unrelated
 frontmatter; remove the block if it becomes empty.
 
-Commented blocks (like this) provide guidance when in draft stage.
-Keep them while working, remove before the final product is merged.
+Keep guidance comments during drafting; remove them before merge.
 -->
 
 # {{ date }}: {{ title }}
@@ -79,17 +77,15 @@ Again, try to keep it short (ideally <200 words).
 ### Goals
 
 <!--
-Describe major goals of this implementation.
-Does not need to be exhaustive, less is more.
-Try not to talk about implementation details here: leave that for the solution.
+State the main outcomes you want. Less is more.
+Leave implementation details for the solution.
 -->
 
 ### Non-Goals
 
 <!--
-Describe non-goals of this implementation, things we are NOT trying to do.
-Does not need to be exhaustive, less is more.
-Try not to talk about implementation details here: leave that for the solution.
+State what is outside this change's scope. Less is more.
+Leave implementation details for the solution.
 -->
 
 ### Proposed Solution
@@ -101,17 +97,10 @@ Describe in short form (ideally <200 words) the proposed solution.
 ## Detailed Design
 
 <!--
-Go into more detail on the design if needed.
-
-Do NOT restate the implementation (line numbers, files, etc.) here.
-While more detailed than the proposed solution's sketch, it is still meant
-as a relatively high-level architectural overview of the solution. If that
-can be stated in "Proposed Solution", simply delete this section.
-
-Examples of useful content:
-
-* Detailed descriptions of particular modules and how they fit into the solution
-* Mermaid diagrams of major architectural components or data flows
+Explain architecture and design decisions that need more detail than Proposed
+Solution provides. Useful additions include module relationships and Mermaid
+or ASCII diagrams of components or data flows. Do not restate the code. Delete
+this section if Proposed Solution is sufficient.
 -->
 
 ## Cross cutting concerns
@@ -125,9 +114,7 @@ You may have nothing to say here. If so, simply delete this section.
 ## Alternatives considered
 
 <!--
-Describe alternatives to this design that were considered. Doesn't need to
-be exhaustive, only add something here if you think someone is likely to ask
-about it.
+Explain alternatives a reader is likely to ask about and why they were not chosen.
 
 You may have nothing to say here. If so, simply delete this section.
 -->
@@ -135,7 +122,7 @@ You may have nothing to say here. If so, simply delete this section.
 ## Future plans
 
 <!--
-Ways in which this solution may be extended, or future plans that may be added.
+Describe possible extensions or follow-up work.
 
 You may have nothing to say here. If so, simply delete this section.
 -->
