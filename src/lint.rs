@@ -45,7 +45,7 @@ pub fn lint_idr(text: &str) -> anyhow::Result<Vec<Diagnostic>> {
     let line_at = |offset| line_starts.partition_point(|&start| start <= offset);
 
     let mut heading: Option<(usize, String)> = None;
-    let mut in_comment = false;
+    let mut html_comments = HtmlComments::default();
     for (event, range) in Parser::new(body).into_offset_iter() {
         let offset = body_offset + range.start;
         match event {
@@ -73,21 +73,9 @@ pub fn lint_idr(text: &str) -> anyhow::Result<Vec<Diagnostic>> {
                 }
             }
             Event::Html(html) | Event::InlineHtml(html) => {
-                // Block HTML may arrive a line at a time. Keep comment state so
-                // a multiline comment produces one finding at its opening line.
-                let mut cursor = 0;
-                while cursor < html.len() {
-                    let needle = if in_comment { "-->" } else { "<!--" };
-                    let Some(relative) = html[cursor..].find(needle) else {
-                        break;
-                    };
-                    let start = cursor + relative;
-                    if !in_comment {
-                        findings.push(Diagnostic::comment(line_at(offset + start)));
-                    }
-                    in_comment = !in_comment;
-                    cursor = start + needle.len();
-                }
+                html_comments.scan(&html, |start| {
+                    findings.push(Diagnostic::comment(line_at(offset + start)));
+                });
             }
             // Code blocks emit text, not HTML or heading events, so examples
             // (including nested fences and indented code) cannot trigger rules.
@@ -96,6 +84,57 @@ pub fn lint_idr(text: &str) -> anyhow::Result<Vec<Diagnostic>> {
     }
     findings.sort_by_key(|finding| (finding.line, finding.code));
     Ok(findings)
+}
+
+/// Markdown emits whole inline tags but may split block HTML across lines.
+/// Track tags and quotes across chunks so attribute values aren't comments.
+#[derive(Default)]
+struct HtmlComments {
+    in_comment: bool,
+    in_tag: bool,
+    quote: Option<u8>,
+}
+
+impl HtmlComments {
+    fn scan(&mut self, html: &str, mut report: impl FnMut(usize)) {
+        let bytes = html.as_bytes();
+        let mut i = 0;
+        while i < bytes.len() {
+            if self.in_comment {
+                if bytes[i..].starts_with(b"-->") {
+                    self.in_comment = false;
+                    i += 3;
+                    continue;
+                }
+            } else if self.in_tag {
+                match (self.quote, bytes[i]) {
+                    (Some(quote), byte) if quote == byte => self.quote = None,
+                    (None, b'\'' | b'"') => self.quote = Some(bytes[i]),
+                    (None, b'>') => self.in_tag = false,
+                    _ => {}
+                }
+            } else if bytes[i..].starts_with(b"<!--") {
+                report(i);
+                i += 4;
+                // HTML also accepts these abruptly closed empty comments.
+                if bytes[i..].starts_with(b">") {
+                    i += 1;
+                } else if bytes[i..].starts_with(b"->") {
+                    i += 2;
+                } else {
+                    self.in_comment = true;
+                }
+                continue;
+            } else if bytes[i] == b'<'
+                && bytes
+                    .get(i + 1)
+                    .is_some_and(|b| b.is_ascii_alphabetic() || b"/!?".contains(b))
+            {
+                self.in_tag = true;
+            }
+            i += 1;
+        }
+    }
 }
 
 /// Only the document's initial YAML block is metadata. Body examples and
@@ -177,22 +216,44 @@ impl MarkedEventReceiver for DraftFields {
 mod tests {
     use super::*;
 
-    fn codes(text: &str) -> Vec<(usize, &'static str)> {
-        lint_idr(text)
-            .unwrap()
-            .into_iter()
-            .map(|d| (d.line, d.code))
-            .collect()
-    }
-
     #[test]
-    fn reports_all_rules_at_source_lines() {
-        assert_eq!(
-            codes(
-                "---\ndraft: true\n---\n# Title\n<!-- guidance\nmore -->\n## Working notes (ephemeral)\n"
-            ),
-            vec![(2, "IDR001"), (5, "IDR002"), (7, "IDR003")]
-        );
+    fn lint_cases() {
+        // Each row names the behavior and gives the exact source lines/codes.
+        type Case = (&'static str, &'static str, &'static [(usize, &'static str)]);
+        #[rustfmt::skip]
+        let cases: &[Case] = &[
+            ("all rules", "---\ndraft: true\n---\n# Title\n<!-- guidance\nmore -->\n## Working notes (ephemeral)\n",
+                &[(2, "IDR001"), (5, "IDR002"), (7, "IDR003")]),
+            ("unrelated metadata", "---\nstatus: draft\nother:\n  draft: true\nsummary: |\n  draft: true\n---\n# Title\n\ndraft: true\n", &[]),
+            ("draft after nested value", "---\nother: [draft, false]\ndraft: false\n---\n", &[(3, "IDR001")]),
+            ("nested backtick fence", "````md\n---\ndraft: true\n---\n```\n<!-- example -->\n## Working notes\n````\n<!-- real -->\n", &[(9, "IDR002")]),
+            ("tilde fence", "~~~\n<!-- example -->\n## Working notes\n~~~\n## Working notes\n", &[(5, "IDR003")]),
+            ("indented code", "    <!-- example -->\n    ## Working notes\n", &[]),
+            ("inline code", "`<!-- example -->` and `## Working notes`\n", &[]),
+            ("quoted fence", "> ```md\n> <!-- example -->\n> ## Working notes\n> ```\n", &[]),
+            ("list fence", "- Example:\n\n  ~~~\n  <!-- example -->\n  ## Working notes\n  ~~~\n", &[]),
+            ("multiline and inline comments", "<!--\n## Working notes\n-->\nText <!-- one --> and <!-- two -->\n<!-- unfinished\n",
+                &[(1, "IDR002"), (4, "IDR002"), (4, "IDR002"), (5, "IDR002")]),
+            ("heading variants", "### WORKING notes ###\n\nWorking notes (ephemeral)\n-------------------------\n\n## **Working notes**\n",
+                &[(1, "IDR003"), (3, "IDR003"), (6, "IDR003")]),
+            ("prose and different heading", "Working notes are temporary.\n\n## Working notes on something else\n", &[]),
+            ("BOM, CRLF, Unicode", "\u{feff}---\r\nowner: Zoë\r\ndraft: false\r\n...\r\nCafé <!-- remove -->\r\n",
+                &[(3, "IDR001"), (5, "IDR002")]),
+            ("final record", "---\nowner: Someone\n---\n# A decision\n\n## Overview\nWe chose this to solve a problem.\n", &[]),
+            ("empty document", "", &[]),
+            ("double-quoted attribute", "<span title=\"<!-- example -->\">Example</span>\n", &[]),
+            ("single-quoted attribute and real comment", "<span title='<!-- example -->'>Example</span><!-- real -->\n", &[(1, "IDR002")]),
+            ("multiline block attribute", "<div title=\"\n<!-- example -->\n\">\n<!-- real -->\n</div>\n", &[(4, "IDR002")]),
+            ("attribute with greater-than sign", "<div title=\"> <!-- example -->\">\n<!-- real -->\n</div>\n", &[(2, "IDR002")]),
+            ("quotes in text outside tags", "<div>\nIt's <!-- real -->\n</div>\n", &[(2, "IDR002")]),
+            ("nested opener inside comment", "<!-- outer <!-- inner -->\n<!-- real -->\n", &[(1, "IDR002"), (2, "IDR002")]),
+            ("abruptly closed empty comments", "<!-->\n\n<!--->\n\n<!-- real -->\n", &[(1, "IDR002"), (3, "IDR002"), (5, "IDR002")]),
+        ];
+        for &(name, input, expected) in cases {
+            let findings = lint_idr(input).unwrap_or_else(|error| panic!("{name}: {error}"));
+            let actual: Vec<_> = findings.iter().map(|d| (d.line, d.code)).collect();
+            assert_eq!(actual, expected, "{name}");
+        }
     }
 
     #[test]
@@ -205,69 +266,17 @@ mod tests {
             "draft:\n  nested: value",
         ] {
             assert_eq!(
-                codes(&format!("---\n{field}\n---\n# Title")),
-                vec![(2, "IDR001")]
+                lint_idr(&format!("---\n{field}\n---\n# Title")).unwrap(),
+                vec![Diagnostic::draft(2)],
+                "{field}"
             );
         }
     }
 
     #[test]
-    fn ignores_unrelated_metadata_and_nested_draft_keys() {
-        assert!(codes("---\nstatus: draft\nother:\n  draft: true\nsummary: |\n  draft: true\n---\n# Title\n\ndraft: true\n").is_empty());
-        assert_eq!(
-            codes("---\nother: [draft, false]\ndraft: false\n---\n"),
-            vec![(3, "IDR001")]
-        );
-    }
-
-    #[test]
-    fn ignores_code_examples_and_preserves_following_line_numbers() {
-        let text = "````markdown\n---\ndraft: true\n---\n```\n<!-- example -->\n## Working notes\n````\n~~~\n<!-- example -->\n## Working notes\n~~~\n\n    <!-- indented -->\n    ## Working notes\n\n`<!-- inline -->` and `## Working notes`\n\n<!-- actual -->\n## Working notes\n";
-        assert_eq!(codes(text), vec![(19, "IDR002"), (20, "IDR003")]);
-    }
-
-    #[test]
-    fn ignores_fences_in_lists_and_quotes() {
-        assert!(codes("> ```md\n> <!-- example -->\n> ## Working notes\n> ```\n\n- Example:\n\n  ~~~\n  <!-- example -->\n  ## Working notes\n  ~~~\n").is_empty());
-    }
-
-    #[test]
-    fn comments_are_reported_once_each_and_hide_headings() {
-        assert_eq!(
-            codes(
-                "<!--\n## Working notes\n-->\nText <!-- one --> and <!-- two -->\n<!-- unfinished\n"
-            ),
-            vec![(1, "IDR002"), (4, "IDR002"), (4, "IDR002"), (5, "IDR002")]
-        );
-    }
-
-    #[test]
-    fn recognizes_heading_syntax_without_matching_prose() {
-        assert_eq!(
-            codes(
-                "### WORKING notes ###\n\nWorking notes (ephemeral)\n-------------------------\n\n## **Working notes**\n\nWorking notes are temporary.\n\n## Working notes on something else\n"
-            ),
-            vec![(1, "IDR003"), (3, "IDR003"), (6, "IDR003")]
-        );
-    }
-
-    #[test]
-    fn handles_bom_crlf_and_unicode() {
-        assert_eq!(
-            codes("\u{feff}---\r\nowner: Zoë\r\ndraft: false\r\n...\r\nCafé <!-- remove -->\r\n"),
-            vec![(3, "IDR001"), (5, "IDR002")]
-        );
-    }
-
-    #[test]
     fn malformed_frontmatter_is_an_error() {
-        assert!(lint_idr("---\ndraft: [\n---\n").is_err());
-        assert!(lint_idr("---\ndraft: true\n").is_err());
-    }
-
-    #[test]
-    fn finalized_document_passes() {
-        assert!(codes("---\nowner: Someone\n---\n# A decision\n\n## Overview\nWe chose this to solve a problem.\n").is_empty());
-        assert!(codes("").is_empty());
+        for input in ["---\ndraft: [\n---\n", "---\ndraft: true\n"] {
+            assert!(lint_idr(input).is_err(), "{input:?}");
+        }
     }
 }
