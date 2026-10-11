@@ -90,7 +90,11 @@ fn generated_drafts_fail_until_manually_finalized() {
             .unwrap()
             .path();
         let text = fs::read_to_string(&path).unwrap();
-        assert!(text.starts_with("---\ndraft: true\n---\n"));
+        // The embedded template inherits the checkout's LF or CRLF endings.
+        assert_eq!(
+            text.lines().take(3).collect::<Vec<_>>(),
+            ["---", "draft: true", "---"]
+        );
 
         let output = idr().arg("lint").arg(&path).output().unwrap();
         assert_eq!(output.status.code(), Some(1));
