@@ -11,6 +11,8 @@ The human owns the design. The LLM helps create the scaffold, critiques the IDR,
 
 An IDR remains a draft through implementation and review. Questions, tentative explanations, and incomplete sections are welcome while understanding develops. Approval of the proposed solution allows implementation to begin; it does not finalize the record.
 
+Read IDRs as raw Markdown, including guidance comments that rendered views may hide.
+
 ## Stage 1: Create Scaffold
 
 When the user asks to start an IDR:
@@ -40,7 +42,7 @@ The user normally owns:
 When the user asks for help developing or reviewing an IDR:
 
 1. Read the full IDR.
-2. Develop an internal critique before drafting new IDR text.
+2. Before proposing revisions, report material gaps, contradictions, or questions for the human to consider. If there are none, say so briefly; do not manufacture critique to fill a report.
 3. If the user requested a specific critique mode, use it.
 4. If the user did not request a specific critique mode, perform a concise general review and ask whether they want to go deeper on a particular dimension.
 5. Align with the user on the problem statement, context, goals, non-goals, and proposed solution before helping fill in other sections.
@@ -85,9 +87,9 @@ Repeat verification and revision as human feedback changes the solution.
 
 ## Stage 5: Finalization
 
-Finalize when the work is ready to merge, meaning human or LLM review has at least mostly finished. Completing implementation alone does not trigger finalization; this stage may happen in a later session.
+Finalize when the work is ready to merge, meaning human or LLM review has at least mostly finished. Keep the draft and Working notes while substantive review can still reshape the work. Completing implementation or passing tests is not sufficient. If review readiness is unclear from the conversation, retain the draft and ask before finalizing; this stage may happen in a later session.
 
-Finalize through manual edits:
+Finalization is deliberate editorial work that either the human or the LLM can perform. When the user requests finalization and review readiness is established, the LLM should make these edits:
 
 1. Move discoveries needed to explain the outcome or changed decisions from Working notes into the relevant durable sections. Retain the reasoning without recounting every experiment.
 2. Remove Working notes, guidance comments, and empty optional sections. The overview should explain the real-world need and approach taken; other sections are optional.
