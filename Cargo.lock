@@ -83,6 +83,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "arraydeque"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7d902e3d592a523def97af8f317b08ce16b7ab854c1985a0c671e6f15cebc236"
+
+[[package]]
 name = "arrayvec"
 version = "0.7.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1321,6 +1327,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "hashlink"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7382cf6263419f2d8df38c55d7da83da5c18aef87fc7a7fc1fb1e344edfe14c1"
+dependencies = [
+ "hashbrown 0.15.5",
+]
+
+[[package]]
 name = "heapless"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1352,9 +1367,12 @@ dependencies = [
  "gix-config",
  "jiff",
  "minijinja",
+ "pulldown-cmark",
  "regex",
  "serial_test",
  "slug",
+ "tempfile",
+ "yaml-rust2",
 ]
 
 [[package]]
@@ -1597,6 +1615,17 @@ dependencies = [
  "bytesize",
  "human_format",
  "parking_lot",
+]
+
+[[package]]
+name = "pulldown-cmark"
+version = "0.13.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e9f068eba8e7071c5f9511831b44f32c740d5adf574e990f946ddb53db2f314e"
+dependencies = [
+ "bitflags",
+ "memchr",
+ "unicase",
 ]
 
 [[package]]
@@ -1927,6 +1956,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "unicase"
+version = "2.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "357cc3acc6a036009fd6c973ed009037c732d60d0b4f6c673e9041497482a28f"
+
+[[package]]
 name = "unicode-bom"
 version = "2.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2157,6 +2192,16 @@ name = "wit-bindgen"
 version = "0.46.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f17a85883d4e6d00e8a97c586de764dabcc06133f7f1d55dce5cdc070ad7fe59"
+
+[[package]]
+name = "yaml-rust2"
+version = "0.10.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2462ea039c445496d8793d052e13787f2b90e750b833afee748e601c17621ed9"
+dependencies = [
+ "arraydeque",
+ "hashlink",
+]
 
 [[package]]
 name = "zlib-rs"

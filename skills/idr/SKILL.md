@@ -93,7 +93,7 @@ Finalize through manual edits:
 2. Remove Working notes, guidance comments, and empty optional sections. The overview should explain the real-world need and approach taken; other sections are optional.
 3. Remove the `draft` field, rather than setting it to `false`. Preserve unrelated frontmatter; remove the block if it becomes empty.
 
-When the CLI supports `lint`, use `<idr command> lint <file>...` on the relevant IDRs to check for leftover draft material. Passing lint does not establish that the record communicates intent or that review is complete.
+Use `<idr command> lint <file>...` on the relevant IDRs to check for leftover draft material. Passing lint does not establish that the record communicates intent or that review is complete.
 
 ## Command Resolution
 
