@@ -21,8 +21,10 @@ When the user asks to start an IDR:
    <idr command> new "<title>"
    ```
 3. Report the created path.
-4. Ask whether the user prefers to fill in the design sections independently or develop them interactively, unless they have already specified a preference.
+4. Invite the user to edit the design sections directly, starting with whatever they know; rough notes and incomplete thoughts are welcome. Offer to talk it through alongside that invitation, rather than requiring them to choose a mode. Follow any preference they have already expressed.
 5. If they prefer an interactive session, help develop the sections below through dialogue. Start with what is known; do not force premature completeness.
+
+Users can move freely between editing, discussion, and critique throughout the work.
 
 The user normally owns:
 
