@@ -20,8 +20,11 @@ gix = "0.77.0"
 gix-config = "0.50.0"
 jiff = "0.2.17"
 minijinja = "2.14.0"
+pulldown-cmark = { version = "0.13", default-features = false }
 regex = "1.11.1"
 slug = "0.1.6"
+yaml-rust2 = { version = "0.10", default-features = false }
 
 [dev-dependencies]
 serial_test = "3.2.0"
+tempfile = "3"

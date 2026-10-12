@@ -10,6 +10,49 @@ on:
   workflow_dispatch:
 
 jobs:
+  lint-idrs:
+    name: Lint added IDRs
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Lint IDRs added by this PR
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          git diff --name-only --diff-filter=A --find-renames -z \
+            "$BASE_SHA...$HEAD_SHA" -- ':(glob)idrs/**/*.md' \
+            > "$RUNNER_TEMP/added-idrs"
+          mapfile -d '' -t idrs < "$RUNNER_TEMP/added-idrs"
+          if (( ${#idrs[@]} == 0 )); then
+            echo "No added IDRs to lint."
+            exit 0
+          fi
+          cargo run --locked --bin idr -- lint "${idrs[@]}"
+
   build-test:
     name: Build and test (${{ matrix.os }})
     runs-on: ${{ matrix.os }}

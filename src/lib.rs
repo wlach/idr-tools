@@ -5,6 +5,7 @@ use jiff::Timestamp;
 
 mod git;
 pub mod idr;
+pub mod lint;
 
 /// Create a new Implementation Decision Record
 ///

@@ -1,7 +1,10 @@
 use std::env;
+use std::fs;
+use std::path::PathBuf;
 
 use clap::{Parser, Subcommand};
 use idr_tools::create_idr;
+use idr_tools::lint::lint_idr;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
@@ -19,12 +22,46 @@ enum Commands {
         #[arg(long)]
         no_comments: bool,
     },
+    /// Check explicitly named IDRs for unfinished draft material
+    Lint {
+        #[arg(required = true, num_args = 1..)]
+        files: Vec<PathBuf>,
+    },
 }
 
 fn main() {
     let cli = Cli::parse();
 
     match &cli.command {
+        Commands::Lint { files } => {
+            let mut status = 0;
+            for path in files {
+                let result = fs::read_to_string(path)
+                    .map_err(anyhow::Error::from)
+                    .and_then(|text| lint_idr(&text));
+                match result {
+                    Ok(findings) => {
+                        if !findings.is_empty() {
+                            status = status.max(1);
+                        }
+                        for finding in findings {
+                            println!(
+                                "{}:{}: {} {}",
+                                path.display(),
+                                finding.line,
+                                finding.code,
+                                finding.message
+                            );
+                        }
+                    }
+                    Err(error) => {
+                        eprintln!("{}: {error:#}", path.display());
+                        status = 2;
+                    }
+                }
+            }
+            std::process::exit(status);
+        }
         Commands::New { title, no_comments } => {
             // Check environment variable for no_comments if flag not set
             let should_strip_comments = *no_comments || env::var("IDR_NO_COMMENTS").is_ok();
