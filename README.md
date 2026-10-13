@@ -31,7 +31,7 @@ The best way to understand this workflow is just to try it. If you have uv insta
 uvx --from idr-tools idr new "My fantastic idea"
 ```
 
-If you don't have uv installed, you can also just run:
+If you don't have uv installed, you can run a simulacrum of the creation workflow via:
 
 ```sh
 FILENAME="my-fantastic-idea.md"; TITLE="My fantastic idea"; OUTFILE="$(date -u +%Y%m%d%H%M)-$FILENAME"; \
@@ -49,7 +49,7 @@ You might find the initial template intimidating but don't worry: just start wri
 
 When you're ready, use it as a prompt to an agent session. You can even get an agent to help you fill it out, but fundamentally you are the one steering the result. Not simply a judge of whatever output it produces.
 
-When you feel like you've sufficiently specified the goal, dive into implementation. You can revise the IDR as you go along and discover aspects of the implementation that you didn't expect up front.
+After you feel like you've sufficiently specified the goal, dive into implementation. You can revise the IDR as you go along, as things come up that you didn't expect up front.
 
 While not required, it is normally expected that you will check in a cleaned up version of the IDR at the end. This provides a durable record of the change and why it happened. It is also an invaluable aid during code review, as it provides reasons why a specific approach was taken and can be critiqued just like any other code artifact.
 
@@ -101,9 +101,7 @@ one cannot be read or parsed.
 Passing lint checks for leftover draft material; it does not establish that the
 IDR communicates intent or that review is complete.
 
-This repository's PR check, **Lint added IDRs**, runs lint on Markdown files
-newly added under `idrs/` by the PR. Existing records are not required to pass.
-Draft IDRs will fail the check until finalized after review.
+For an example of running this lint in CI, see this repository.
 
 ### Agent skill
 
