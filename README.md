@@ -25,7 +25,7 @@ flowchart TD
   Q -- "Yes" --> D["📝 Finalize"]
 ```
 
-The best way to understand this workflow is just to try it. If you have uv installed, you can run:
+The best way to understand this workflow is just to try it. If you have [uv](https://docs.astral.sh/uv/) installed, you can run:
 
 ```sh
 uvx --from idr-tools idr new "My fantastic idea"
