@@ -1,100 +1,59 @@
 # idr-tools
 
-Tooling to support Implementation Decision Records (IDRs), for humans and machines.
+[Proposal culture](https://wrla.ch/log/2026/08/writing-the-docs-2026-edition/) for the modern era. Moving from prompt-and-pray to proposal-driven development.
 
-IDRs give you structured context that explains what you're building and why, without creating documentation debt.
+## Problem statement
 
-```bash
-idr new "Add OAuth support"
-# Creates: idrs/202601051430-add-oauth-support.md
+This project came about due to finding the interaction loop of conventional AI systems (Claude, Copilot, etc.) slow and frustrating. You've seen it before:
+
+Write a one line prompt describing roughly what you want -> LLM takes 5-15 minutes writing some stuff using some best guess of what was meant -> Don't get what you want, prompt it to change a bunch of stuff -> Repeat endlessly, feel sad
+
+## A better way
+
+The defacto solution to the above problem is agent skills and hooks. These *are* useful, but at least most of them only solve the "how to do something" part, rather than ensuring what is eventually produced is what we want.
+
+IDRs are an attempt to distill a better way of working that I initially discovered while at Mozilla in the 2010s and later evangelized to anyone who would listen. In brief: put a design in writing using an easy-to-fill-in template, get feedback, implement. Often, you would write the implementation along with the doc, with the knowledge that it might change. The friction of discussing a written proposal shakes out any undiscovered assumptions and helps build consensus around an idea. The end result is almost always far better.
+
+What I realized is that the same format can be an ideal guide to working with LLMs. A well-written design doc provides clearer guardrails to influence LLM behaviour and the end result is easier to understand and more reviewable. The change becomes a consensus between the human and the model, rather than the human simply signing off on model-produced code.
+
+```mermaid
+flowchart TD
+  A["✏️ Write Draft IDR"] --> C["💬 Update IDR"]
+  C --> B["🛠️ Implement"]
+  B --> Q{"Happy with result?"}
+  Q -- "No" --> C
+  Q -- "Yes" --> D["📝 Finalize"]
 ```
 
-Opens a template like this:
+The best way to understand this workflow is just to try it. If you have uv installed, you can run:
 
-```markdown
----
-draft: true
----
-
-# 2026-01-05: Add OAuth support
-
-Owner: Your Name <you@example.com>
-
-## Overview
-
-### Problem Statement
-
-<!-- What problem are we solving? -->
-
-### Goals
-
-<!-- What are we trying to achieve? -->
-
-### Proposed Solution
-
-<!-- High-level approach -->
-
-## Detailed Design
-
-<!-- Technical details, API design, etc. -->
-
-## Working notes (ephemeral)
-
-<!-- Questions, experiments, discoveries, and implementation details -->
+```sh
+uvx --from idr-tools idr new "My fantastic idea"
 ```
 
-Use this template as a starting point:
+If you don't have uv installed, you can also just run:
 
-- ✏️ **Start with what you know**—edit directly or talk it through with an LLM
-- 🔄 **Update through implementation and review**, keeping discoveries in Working notes
-- 📝 **Finalize once review is mostly finished**, preserving reasoning and removing draft material
-- ✅ **Commit it with your code**
-- 🚀 **Move on** after it lands
-
-IDRs are moments in time, a record of the thinking behind a solution to a problem and why it was chosen.
-They are not intended to be permanent documentation of a system "as it is".
-
-## Why IDRs?
-
-This is an experiment to try and find a middle ground between proposals, documentation, and implementation.
-
-[Traditional design docs](https://www.industrialempathy.com/posts/design-docs-at-google/) are useful for larger decisions that require a great deal of discussion and alternatives. [ADRs](https://adr.github.io/) are great for documenting decisions but lack detail.
-IDRs bridge the gap: detailed enough to guide implementation, ephemeral enough to not become stale documentation.
-
-In some ways an IDR is analogous to a very large commit message. However, it is generally easier to scan,
-parse, and search as a permanent historical record.
-
-## Usage
-
-Create a new IDR:
-
-```bash
-idr new "Your Feature Title"
+```sh
+FILENAME="my-fantastic-idea.md"; TITLE="My fantastic idea"; OUTFILE="$(date -u +%Y%m%d%H%M)-$FILENAME"; \
+curl -sL https://raw.githubusercontent.com/wlach/idr-tools/main/src/default_template.md.jinja | \
+  sed -e "s|{{ date }}|$(date -u +%Y-%m-%d)|" \
+      -e "s|{{ title }}|$TITLE|" \
+      -e "s|{{ owner }}|$(git config user.name) <$(git config user.email)>|" \
+  > "$OUTFILE"; \
+echo "$OUTFILE"
 ```
 
-This will create a new markdown file in the `idrs/` directory with:
+This will produce a "draft" IDR which you can use as a starting point. 
 
-- A UTC timestamp prefix (e.g., `202512301600`)
-- A slugified version of your title
-- Pre-filled template with your git author name
+You might find the initial template intimidating but don't worry: just start writing stuff and you can clean it up later. It's a draft! By default, it has a fair number of comments which are mostly there to ensure that the human remains in control and the end result is comprehensible. 
 
-Example:
+When you're ready, use it as a prompt to an agent session. You can even get an agent to help you fill it out, but fundamentally you are the one steering the result. Not simply a judge of whatever output it produces.
 
-```bash
-idr new "Add last modified metadata"
-# Creates: idrs/202512301600-add-last-modified-metadata.md
-```
+When you feel like you've sufficiently specified the goal, dive into implementation. You can revise the IDR as you go along and discover aspects of the implementation that you didn't expect up front.
 
-The IDR template includes sections for:
+While not required, it is normally expected that you will check in a cleaned up version of the IDR at the end. This provides a durable record of the change and why it happened. It is also an invaluable aid during code review, as it provides reasons why a specific approach was taken and can be critiqued just like any other code artifact.
 
-- Problem Statement
-- Context
-- Goals and Non-Goals
-- Proposed Solution
-- Detailed Design
-- Working notes (ephemeral)
-
-The comments are useful reminders for both humans and LLMs, but you can opt to not include them by passing `--no-comments` or setting the environment variable `IDR_NO_COMMENTS=1`.
+## Details
 
 ### Drafts and finalization
 
@@ -146,7 +105,7 @@ This repository's PR check, **Lint added IDRs**, runs lint on Markdown files
 newly added under `idrs/` by the PR. Existing records are not required to pass.
 Draft IDRs will fail the check until finalized after review.
 
-## Agent skill
+### Agent skill
 
 This repository includes an optional `idr` skill for LLM collaboration. It invites
 direct editing and also supports developing an IDR through conversation. You can
@@ -166,6 +125,7 @@ ln -s /path/to/idr-tools/skills/idr ~/.agents/skills/idr
 ln -s /path/to/idr-tools/skills/idr ~/.claude/skills/idr
 ```
 
-## Examples
+### Dogfood
 
-This feature was itself implemented using an IDR—see [idrs/202601031709-init.md](idrs/202601031709-init.md) for more about the IDR format and philosophy.
+* This repo (see [idrs](https://github.com/wlach/idr-tools/tree/main/idrs))
+* [repo-parser](https://github.com/wlach/repo-parser)
