@@ -33,7 +33,10 @@ Then remove working notes, comments, and empty optional sections.
 Remove the draft field rather than setting it to false. Preserve unrelated
 frontmatter; remove the block if it becomes empty.
 
-Keep guidance comments during drafting; remove them before merge.
+Remove section guidance comments as you fill sections in. Keep comments in
+sections that are still blank. Removing comments does not finalize the IDR.
+You can run `idr template` to read the guidance again. Remove all comments
+before merge.
 -->
 
 # {{ date }}: {{ title }}

@@ -5,6 +5,9 @@ use minijinja::{Environment, context};
 use regex::Regex;
 use slug::slugify;
 
+/// The raw template, including guidance comments and unrendered placeholders.
+pub const IDR_TEMPLATE: &str = include_str!("./default_template.md.jinja");
+
 pub fn get_idr_filename(title: &str, timestamp: Timestamp) -> String {
     format!("{}-{}.md", timestamp.strftime("%Y%m%d%H%M"), slugify(title))
 }
@@ -47,7 +50,7 @@ pub fn render_idr_template(
     timestamp: Timestamp,
 ) -> anyhow::Result<String> {
     let mut env = Environment::new();
-    env.add_template("idr", include_str!("./default_template.md.jinja"))?;
+    env.add_template("idr", IDR_TEMPLATE)?;
     let tmpl = env.get_template("idr")?;
 
     let now_yyyymmdd = timestamp.strftime("%Y-%m-%d").to_string();
