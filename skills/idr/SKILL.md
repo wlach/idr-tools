@@ -13,6 +13,8 @@ An IDR remains a draft through implementation and review. Questions, tentative e
 
 Read IDRs as raw Markdown, including guidance comments that rendered views may hide.
 
+Guidance comments can be removed when they get in the way of drafting. Removing them does not finalize the IDR.
+
 ## Stage 1: Create Scaffold
 
 When the user asks to start an IDR:
@@ -89,7 +91,11 @@ Repeat verification and revision as human feedback changes the solution.
 
 Finalize when the work is ready to merge, meaning human or LLM review has at least mostly finished. Keep the draft and Working notes while substantive review can still reshape the work. Completing implementation or passing tests is not sufficient. If review readiness is unclear from the conversation, retain the draft and ask before finalizing; this stage may happen in a later session.
 
-Finalization is deliberate editorial work that either the human or the LLM can perform. When the user requests finalization and review readiness is established, the LLM should make these edits:
+Finalization is deliberate editorial work that either the human or the LLM can perform. Begin when the user requests finalization and review readiness is established.
+
+First run `<idr command> template` and read the full output, including guidance comments. It prints the current template without creating a file. Use its guidance to assess the record's motivation, approach, and retained reasoning. Surface material gaps for discussion; do not invent decisions, change the agreed design, or add sections merely to match the current template.
+
+Then make these edits:
 
 1. Move discoveries needed to explain the outcome or changed decisions from Working notes into the relevant durable sections. Retain the reasoning without recounting every experiment.
 2. Remove Working notes, guidance comments, and empty optional sections. The overview should explain the real-world need and approach taken; other sections are optional.

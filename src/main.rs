@@ -15,6 +15,8 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
+    /// Print the raw IDR template, including guidance comments
+    Template,
     /// Create a new IDR
     New {
         title: String,
@@ -33,6 +35,7 @@ fn main() {
     let cli = Cli::parse();
 
     match &cli.command {
+        Commands::Template => print!("{}", idr_tools::idr::IDR_TEMPLATE),
         Commands::Lint { files } => {
             let mut status = 0;
             for path in files {
