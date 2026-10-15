@@ -13,7 +13,7 @@ An IDR remains a draft through implementation and review. Questions, tentative e
 
 Read IDRs as raw Markdown, including guidance comments that rendered views may hide.
 
-Guidance comments can be removed when they get in the way of drafting. Removing them does not finalize the IDR.
+Remove a section's guidance comments when you fill it in. Keep comments in sections that are still blank. Removing comments does not finalize the IDR.
 
 ## Stage 1: Create Scaffold
 

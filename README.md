@@ -62,15 +62,8 @@ notes, questions, and incomplete sections are welcome. Approval of the proposed
 solution lets implementation begin; the IDR stays a draft through implementation
 and review. Only the overview is required; other sections are optional.
 
-You can delete guidance comments when they get in the way of drafting.
-Removing them does not finalize the IDR. To view the full template and its
-guidance at any time:
-
-```bash
-idr template
-```
-
-This prints the current template, including comments and unfilled placeholders.
+Template comments explain what to write in each section. Remove them as you
+fill sections in; `idr template` shows the full template if you need it again.
 
 Once human or LLM review has at least mostly finished, finalize through deliberate
 edits, either yourself or with an LLM's help:

@@ -119,6 +119,9 @@ new sections or changes to the agreed design.
 Keep the full initial guidance. Replace the instruction to retain comments
 throughout drafting with permission to remove them when they get in the way.
 Keep draft status and finalization readiness independent of comment removal.
+The skill removes a section's guidance comments when filling it in and keeps
+comments in blank sections. The template gives the same advice, with an
+optional reminder that humans can retrieve guidance with `idr template`.
 
 At finalization, the skill runs `idr template` and reads its full output before
 assessing motivation, approach, and retained reasoning. Material gaps require
