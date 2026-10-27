@@ -100,6 +100,7 @@ Then make these edits:
 1. Move discoveries needed to explain the outcome or changed decisions from Working notes into the relevant durable sections. Retain the reasoning without recounting every experiment.
 2. Remove Working notes, guidance comments, and empty optional sections. The overview should explain the real-world need and approach taken; other sections are optional.
 3. Remove the `draft` field, rather than setting it to `false`. Preserve unrelated frontmatter; remove the block if it becomes empty.
+4. Remove implementation details readily apparent from the code, such as line numbers and variable names, unless needed to explain a decision.
 
 Use `<idr command> lint <file>...` on the relevant IDRs to check for leftover draft material. Passing lint does not establish that the record communicates intent or that review is complete.
 

@@ -1,41 +1,3 @@
----
-draft: true
----
-
-<!--
-This is a working draft during development and review, and a record of intent
-and decisions afterward. Start with what you know; questions, tentative
-explanations, and incomplete sections are welcome. Update it as your
-understanding changes.
-
-Approval of the proposed solution allows implementation to begin; the IDR
-remains a draft until human or LLM review has at least mostly finished.
-Completing implementation or passing tests alone does not mean it is ready
-to finalize. Keep the draft and working notes while substantive review can
-still reshape the work.
-
-By the time the work is ready to merge, a reader should be able to understand:
-
-* What motivated the change
-* What approach was taken
-* What might be done in the future
-
-Include technical detail where it helps explain a decision; the diff can
-supply routine implementation details.
-Aside from the overview, all sections are optional.
-
-Once review is at least mostly finished, finalize through deliberate edits,
-either yourself or by asking an LLM to help. If review readiness is unclear,
-keep the draft and clarify before finalizing.
-Preserve discoveries and changes in understanding that explain the decisions.
-Keep the reasoning; omit the experiment log.
-Then remove working notes, comments, and empty optional sections.
-Remove the draft field rather than setting it to false. Preserve unrelated
-frontmatter; remove the block if it becomes empty.
-
-Keep guidance comments during drafting; remove them before merge.
--->
-
 # 2026-10-15: Reduce template comment clutter
 
 Owner: Will Lachance <wlach@protonmail.com>
@@ -51,7 +13,7 @@ to clear it away without losing access to the expectations for a finished IDR.
 
 ### Context (as needed)
 
-The current template explicitly says to keep guidance comments during drafting
+The previous template explicitly said to keep guidance comments during drafting
 and remove them before merge. This reflects a concern that agents might lose
 track of instructions across sessions, after context compaction, or during a
 long conversation. Keeping guidance in the document makes it available on each
@@ -127,15 +89,9 @@ At finalization, the skill runs `idr template` and reads its full output before
 assessing motivation, approach, and retained reasoning. Material gaps require
 discussion, rather than invented decisions or silent changes to the design.
 Keep the existing human ownership and review-readiness rules in the skill.
+Finish by removing implementation details readily apparent from the code,
+retaining non-obvious decisions and their reasons rather than restating the diff.
 Document comment removal and template retrieval in the README.
-
-## Cross cutting concerns
-
-<!--
-Describe the design from other angles, as required: security, reliability, etc.
-
-You may have nothing to say here. If so, simply delete this section.
--->
 
 ## Alternatives considered
 
@@ -166,30 +122,12 @@ not guarantee that an agent follows those instructions.
 
 ## Future plans
 
-<!--
-Describe possible extensions or follow-up work.
-
-You may have nothing to say here. If so, simply delete this section.
--->
+The effect of removing comments on LLM behaviour remains untested. A future
+comparison could check whether human ownership, tolerance of incomplete
+drafts, and review before finalization survive comment removal, including
+when work resumes in a fresh session.
 
 ## Other reading
 
 - [Draft IDRs](202610111659-draft-idrs.md): established the draft lifecycle and
-  the current expectation that guidance comments remain during drafting.
-
-## Working notes (ephemeral)
-
-Open questions:
-
-- What small practical comparison would give us confidence that deleting
-  comments preserves the behaviours we care about? Candidate checks include
-  human ownership, tolerance of incomplete drafts, and avoiding premature
-  finalization, including when resuming in a fresh session.
-
-Implementation notes:
-
-- Added `idr template` using the same bundled source as `idr new`.
-- Updated the template, skill, and README for disposable draft comments and
-  guidance retrieval at finalization.
-- The CLI test checks exact raw output, including comments and placeholders,
-  with `IDR_NO_COMMENTS` set, and verifies that no files are created.
+  the previous expectation that guidance comments remain during drafting.
