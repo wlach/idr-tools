@@ -26,7 +26,7 @@ When the user asks to start an IDR:
    ```
 3. Report the created path.
 4. Invite the user to edit the design sections directly, starting with whatever they know; rough notes and incomplete thoughts are welcome. Offer to talk it through alongside that invitation, rather than requiring them to choose a mode. Follow any preference they have already expressed.
-5. If they prefer an interactive session, help develop the sections below through dialogue. Start with what is known; do not force premature completeness.
+5. If they prefer an interactive session, develop the design through dialogue.
 
 Users can move freely between editing, discussion, and critique throughout the work.
 
@@ -47,9 +47,8 @@ When the user asks for help developing or reviewing an IDR:
 2. Before proposing revisions, report material gaps, contradictions, or questions for the human to consider. If there are none, say so briefly; do not manufacture critique to fill a report.
 3. If the user requested a specific critique mode, use it.
 4. If the user did not request a specific critique mode, perform a concise general review and ask whether they want to go deeper on a particular dimension.
-5. Align with the user on the problem statement, context, goals, non-goals, and proposed solution before helping fill in other sections.
-6. After alignment, help fill in requested sections such as Other reading or implementation hints in Working notes when asked.
-7. Do not rewrite human-owned sections unless asked.
+5. Align with the user on the problem statement, context, goals, non-goals, and proposed solution before helping fill in requested sections such as Other reading or implementation hints in Working notes.
+6. Do not rewrite human-owned sections unless asked.
 
 Useful critique modes include:
 
@@ -89,9 +88,7 @@ Repeat verification and revision as human feedback changes the solution.
 
 ## Stage 5: Finalization
 
-Finalize when the work is ready to merge, meaning human or LLM review has at least mostly finished. Keep the draft and Working notes while substantive review can still reshape the work. Completing implementation or passing tests is not sufficient. If review readiness is unclear from the conversation, retain the draft and ask before finalizing; this stage may happen in a later session.
-
-Finalization is deliberate editorial work that either the human or the LLM can perform. Begin when the user requests finalization and review readiness is established.
+Finalization is deliberate editorial work that either the human or the LLM can perform. Begin when the user requests finalization and the work is ready to merge, meaning human or LLM review has at least mostly finished. Keep the draft and Working notes while substantive review can still reshape the work. Completing implementation or passing tests is not sufficient. If review readiness is unclear from the conversation, retain the draft and ask before finalizing; this stage may happen in a later session.
 
 First run `<idr command> template` and read the full output, including guidance comments. It prints the current template without creating a file. Use its guidance to assess the record's motivation, approach, and retained reasoning. Surface material gaps for discussion; do not invent decisions, change the agreed design, or add sections merely to match the current template.
 
@@ -119,5 +116,3 @@ If none works, ask the user how to invoke `idr`. Do not install dependencies glo
 After IDR approval, ask whether the user wants to continue in the same session or start a new LLM session manually, unless they have already specified how to proceed.
 
 If the user wants a new session, first capture important implementation-relevant research in `## Working notes (ephemeral)`.
-
-If the user continues in the same session, proceed from the approved IDR.
