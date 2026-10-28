@@ -47,11 +47,15 @@ This will produce a "draft" IDR which you can use as a starting point.
 
 You might find the initial template intimidating but don't worry: just start writing stuff and you can clean it up later. It's a draft! By default, it has a fair number of comments which are mostly there to ensure that the human remains in control and the end result is comprehensible. 
 
-When you're ready, use it as a prompt to an agent session. You can even get an agent to help you fill it out, but fundamentally you are the one steering the result. Not just a judge of whatever output it produces.
+When you're ready, use it as a prompt to an agent session. You can even get an agent to help you fill it out, but fundamentally you are the one steering the result. 
+Not just a judge of whatever output it produces.
 
-After you feel like you've sufficiently specified the goal, dive into implementation. You can revise the IDR as you go along, as things come up that you didn't expect up front.
+After you feel like you've sufficiently specified the goal, dive into implementation.
+You can revise the IDR as you go along, as things come up that you didn't expect up front.
 
-While not required, the tooling expected that you will check in a cleaned up version of the IDR at the end. This provides a durable record of the change and why it happened. It is also an invaluable aid during code review, as it provides reasons why a specific approach was taken and can be critiqued just like any other code artifact.
+While not required, you can check in a cleaned up version of the IDR at the end of this process.
+This can be invaluable aid during code review: it provides detailed reasons why a specific approach was taken and can be critiqued line-by-line just like code.
+When committed, an IDR provides a durable record of why a particular approach was taken.
 
 ## Details
 
