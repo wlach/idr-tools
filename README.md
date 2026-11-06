@@ -93,11 +93,10 @@ idrs/example.md:2: IDR001 Draft metadata remains; remove the `draft` field when 
 | --- | --- |
 | `IDR001` | A top-level `draft` field remains in YAML frontmatter, regardless of its value |
 | `IDR002` | A Markdown/HTML comment remains |
-| `IDR003` | A Working notes heading remains, with or without `(ephemeral)` |
+| `IDR003` | A heading containing `(ephemeral)` remains |
 
 Code examples in fenced blocks, indented blocks, and inline code do not trigger
-findings. Working notes headings are matched without regard to case or heading
-level. Lint exits with `0` when all files pass, `1` for findings, and `2` for usage,
+findings. Lint exits with `0` when all files pass, `1` for findings, and `2` for usage,
 read, or frontmatter parsing errors. It continues checking other named files if
 one cannot be read or parsed.
 

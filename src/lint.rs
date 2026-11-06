@@ -27,11 +27,11 @@ impl Diagnostic {
         }
     }
 
-    fn working_notes(line: usize) -> Self {
+    fn ephemeral_section(line: usize) -> Self {
         Self {
             line,
             code: "IDR003",
-            message: "Working notes section remains",
+            message: "Ephemeral section remains",
         }
     }
 }
@@ -65,10 +65,8 @@ pub fn lint_idr(text: &str) -> anyhow::Result<Vec<Diagnostic>> {
             Event::End(TagEnd::Heading(_)) => {
                 if let Some((line, title)) = heading.take() {
                     let title = title.split_whitespace().collect::<Vec<_>>().join(" ");
-                    if title.eq_ignore_ascii_case("Working notes")
-                        || title.eq_ignore_ascii_case("Working notes (ephemeral)")
-                    {
-                        findings.push(Diagnostic::working_notes(line));
+                    if title.to_ascii_lowercase().contains("(ephemeral)") {
+                        findings.push(Diagnostic::ephemeral_section(line));
                     }
                 }
             }
@@ -226,17 +224,17 @@ mod tests {
                 &[(2, "IDR001"), (5, "IDR002"), (7, "IDR003")]),
             ("unrelated metadata", "---\nstatus: draft\nother:\n  draft: true\nsummary: |\n  draft: true\n---\n# Title\n\ndraft: true\n", &[]),
             ("draft after nested value", "---\nother: [draft, false]\ndraft: false\n---\n", &[(3, "IDR001")]),
-            ("nested backtick fence", "````md\n---\ndraft: true\n---\n```\n<!-- example -->\n## Working notes\n````\n<!-- real -->\n", &[(9, "IDR002")]),
-            ("tilde fence", "~~~\n<!-- example -->\n## Working notes\n~~~\n## Working notes\n", &[(5, "IDR003")]),
-            ("indented code", "    <!-- example -->\n    ## Working notes\n", &[]),
+            ("nested backtick fence", "````md\n---\ndraft: true\n---\n```\n<!-- example -->\n## Working notes (ephemeral)\n````\n<!-- real -->\n", &[(9, "IDR002")]),
+            ("tilde fence", "~~~\n<!-- example -->\n## Working notes (ephemeral)\n~~~\n## Working notes (ephemeral)\n", &[(5, "IDR003")]),
+            ("indented code", "    <!-- example -->\n    ## Working notes (ephemeral)\n", &[]),
             ("inline code", "`<!-- example -->` and `## Working notes`\n", &[]),
-            ("quoted fence", "> ```md\n> <!-- example -->\n> ## Working notes\n> ```\n", &[]),
-            ("list fence", "- Example:\n\n  ~~~\n  <!-- example -->\n  ## Working notes\n  ~~~\n", &[]),
-            ("multiline and inline comments", "<!--\n## Working notes\n-->\nText <!-- one --> and <!-- two -->\n<!-- unfinished\n",
+            ("quoted fence", "> ```md\n> <!-- example -->\n> ## Working notes (ephemeral)\n> ```\n", &[]),
+            ("list fence", "- Example:\n\n  ~~~\n  <!-- example -->\n  ## Working notes (ephemeral)\n  ~~~\n", &[]),
+            ("multiline and inline comments", "<!--\n## Working notes (ephemeral)\n-->\nText <!-- one --> and <!-- two -->\n<!-- unfinished\n",
                 &[(1, "IDR002"), (4, "IDR002"), (4, "IDR002"), (5, "IDR002")]),
-            ("heading variants", "### WORKING notes ###\n\nWorking notes (ephemeral)\n-------------------------\n\n## **Working notes**\n",
+            ("heading variants", "### Research (EPHEMERAL) ###\n\nWorking notes (ephemeral)\n-------------------------\n\n## **Implementation (ephemeral)** and results\n",
                 &[(1, "IDR003"), (3, "IDR003"), (6, "IDR003")]),
-            ("prose and different heading", "Working notes are temporary.\n\n## Working notes on something else\n", &[]),
+            ("prose and different heading", "Working notes (ephemeral) are temporary.\n\n## Working notes\n\n## Working notes on something else\n\n## Ephemeral notes\n\n## Notes (ephemeral-ish)\n", &[]),
             ("BOM, CRLF, Unicode", "\u{feff}---\r\nowner: Zoë\r\ndraft: false\r\n...\r\nCafé <!-- remove -->\r\n",
                 &[(3, "IDR001"), (5, "IDR002")]),
             ("final record", "---\nowner: Someone\n---\n# A decision\n\n## Overview\nWe chose this to solve a problem.\n", &[]),

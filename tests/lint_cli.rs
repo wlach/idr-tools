@@ -19,7 +19,7 @@ fn checks_multiple_files_without_modifying_or_scanning_others() {
     let dir = tempdir().unwrap();
     let draft = dir.path().join("draft.md");
     let final_idr = dir.path().join("final.md");
-    let text = "---\ndraft: false\n---\n<!-- remove -->\n## Working notes\n";
+    let text = "---\ndraft: false\n---\n<!-- remove -->\n## Implementation (ephemeral)\n";
     fs::write(&draft, text).unwrap();
     fs::write(&final_idr, "# Decision\n\nWe chose this for a reason.\n").unwrap();
 
@@ -32,6 +32,7 @@ fn checks_multiple_files_without_modifying_or_scanning_others() {
     assert!(output.stderr.is_empty());
     let stdout = String::from_utf8(output.stdout).unwrap();
     assert_eq!(stdout.lines().count(), 3);
+    assert!(stdout.contains("IDR003 Ephemeral section remains"));
     for (line, code) in [(2, "IDR001"), (4, "IDR002"), (5, "IDR003")] {
         assert!(stdout.contains(&format!("{}:{line}: {code} ", draft.display())));
     }
@@ -54,7 +55,7 @@ fn errors_do_not_skip_remaining_files_or_get_overwritten_by_findings() {
     let missing = dir.path().join("missing.md");
     let draft = dir.path().join("draft.md");
     fs::write(&bad, "---\ndraft: [\n---\n").unwrap();
-    fs::write(&draft, "## Working notes\n").unwrap();
+    fs::write(&draft, "## Implementation (ephemeral)\n").unwrap();
     let output = idr()
         .arg("lint")
         .args([&bad, &missing, &draft])
